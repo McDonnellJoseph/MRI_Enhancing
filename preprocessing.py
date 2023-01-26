@@ -34,7 +34,7 @@ def normalize(raw_imgs):
     """
     return (raw_imgs - raw_imgs.min()) / (raw_imgs.max() - raw_imgs.min())
 
-def simulate_3T(imgs, sigma=0.05):
+def simulate_3T(imgs, sigma=0.003):
     """ Adds noise to get 3T
 
     Parameters
@@ -42,7 +42,7 @@ def simulate_3T(imgs, sigma=0.05):
     imgs : array
         normalized images
     sigma : float, optional
-        white noise parameter, by default 0.05
+        white noise parameter, by default 0.003
 
     Returns
     -------
@@ -51,7 +51,7 @@ def simulate_3T(imgs, sigma=0.05):
     """
     return imgs + np.random.normal(0, sigma, size=imgs.shape)
 
-def apply_hist_matching(imgs):
+def apply_hist_matching(imgs, ref=None):
     """ Applies histogram matching
 
     Parameters
@@ -64,9 +64,13 @@ def apply_hist_matching(imgs):
     array (same shape as imgs)
         normalized images
     """
+    start = 0
+    if ref is None:
+        ref == imgs[0]
+        start = 1
     hist_matched_imgs = imgs.copy()
-    for i in range(1, len(imgs)):
-        hist_matched_imgs[i] = match_histograms(imgs[i], imgs[0])
+    for i in range(start, len(imgs)):
+        hist_matched_imgs[i] = match_histograms(imgs[i], ref)
     return hist_matched_imgs
 
 def preprocess(paths):
@@ -84,8 +88,8 @@ def preprocess(paths):
     """
     raw_imgs_7T = load(paths=paths)
     imgs_7T = normalize(raw_imgs=raw_imgs_7T)
-    imgs_3T = simulate_3T(imgs_7T)
+    imgs_3T = simulate_3T(imgs_7T, 0.003)
     imgs_7T = apply_hist_matching(imgs_7T)
-    imgs_3T = apply_hist_matching(imgs_3T)
+    imgs_3T = apply_hist_matching(imgs_3T, imgs_7T[0])
     return (imgs_3T, imgs_7T)
 
