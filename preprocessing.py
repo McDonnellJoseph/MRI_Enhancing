@@ -60,14 +60,15 @@ def apply_hist_matching(imgs, ref=None):
         normalized images
 
     Returns
-    -------
+    -------         
     array (same shape as imgs)
         normalized images
     """
-    start = 0
     if ref is None:
-        ref == imgs[0]
+        ref = imgs[0]
         start = 1
+    else:
+        start = 0
     hist_matched_imgs = imgs.copy()
     for i in range(start, len(imgs)):
         hist_matched_imgs[i] = match_histograms(imgs[i], ref)
